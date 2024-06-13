@@ -1,15 +1,14 @@
 /*
-    Simulates water ripples w ANSI graphics inside the terminal
+    Simulates water droplets w ANSI graphics inside the terminal
     Uses Bruno Levy's GL_tty header
 */
 
 #include "GL_tty.h"
 #include "ripples_ht.h"
 #include <time.h>
-#include <unistd.h>
 
 #define DROPLET_RADIUS_PIXELS 5
-#define FRAMES_BETWEEN_RIPPLES 5
+#define FRAMES_BETWEEN_RIPPLES 10
 #define FADE_RATE 0.05;
 
 //Adjust relative to terminal
@@ -17,7 +16,43 @@
 #define W GL_width
 
 const int rand_blues[6][3] = {{0,22,252},{0,32,252},{0,32,242},
-    {0,22,242},{0,42,232},{0,32,232}};
+    {0,52,242},{0,62,232},{0,92,232}};
+
+void create(tableEntry *cache[], int n, uint8_t color)
+{
+    for (int i = 0; i < n; i++) 
+    {
+        Ripple *n = get(i, cache);
+        if (n == NULL) 
+        {
+            Ripple ripple;
+            ripple.x = rand() % W;
+            ripple.y = rand() % H;
+            ripple.radius = 0;
+            ripple.intensity = 1.0;
+            ripple.color = color;
+            store(i, ripple, cache);
+            break;
+        }
+    }
+}
+
+void update(tableEntry *cache[], int n)
+{
+    for(int i = 0; i < n; i++)
+    {
+        Ripple *ripple = get(i, cache);
+        if(ripple != NULL)
+        {
+            ripple->radius += 0.5;
+            ripple->intensity -= 0.05;
+            if(ripple->intensity <= 0)
+            {
+                remove_entry(i, cache);
+            }
+        }
+    }
+}
 
 void draw(int pos_x, int pos_y, float radius, float intensity, uint8_t color)
 {   
@@ -42,42 +77,6 @@ void draw(int pos_x, int pos_y, float radius, float intensity, uint8_t color)
                     GL_setpixelRGB(px, py, R, G, B);
                 }
             }
-        }
-    }
-}
-
-void update(tableEntry *cache[], int n)
-{
-    for(int i = 0; i < n; i++)
-    {
-        Ripple *ripple = get(i, cache);
-        if(ripple != NULL)
-        {
-            ripple->radius += 0.5;
-            ripple->intensity -= 0.05;
-            if(ripple->intensity <= 0)
-            {
-                remove_entry(i, cache);
-            }
-        }
-    }
-}
-
-void create(tableEntry *cache[], int n, uint8_t color)
-{
-    for (int i = 0; i < n; i++) 
-    {
-        Ripple *n = get(i, cache);
-        if (n == NULL) 
-        {
-            Ripple ripple;
-            ripple.x = rand() % W;
-            ripple.y = rand() % H;
-            ripple.radius = 0;
-            ripple.intensity = 1.0;
-            ripple.color = color;
-            store(i, ripple, cache);
-            break;
         }
     }
 }
