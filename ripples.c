@@ -6,6 +6,7 @@
 #include "GL_tty.h"
 #include "ripples_ht.h"
 #include <time.h>
+#include <unistd.h>
 
 #define DROPLET_RADIUS_PIXELS 5
 #define FRAMES_BETWEEN_RIPPLES 10
@@ -81,7 +82,7 @@ void draw(int pos_x, int pos_y, float radius, float intensity, uint8_t color)
     }
 }
 
-void loop(tableEntry *cache[], int n)
+void run(tableEntry *cache[], int n)
 {
     GL_init();
     srand(time(NULL));
@@ -118,7 +119,7 @@ int main()
 {
     srand(time(NULL));
     tableEntry *nt[MAX_INST] = {NULL};
-    loop(nt, MAX_INST);
+    run(nt, MAX_INST);
     for (int i = 0; i < MAX_INST; i++) 
     {
         if (nt[i] != NULL) 
